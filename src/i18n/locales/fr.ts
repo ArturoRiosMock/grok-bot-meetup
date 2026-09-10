@@ -139,6 +139,17 @@ export default {
     githubAria: 'Le dépôt du projet sur GitHub, dans un nouvel onglet'
   },
 
+  meetup: {
+    title: 'Grok Bot',
+    question: 'What should I build with my Grok Bots?',
+    presented: 'Presented by',
+    city: 'Meetup Mendoza',
+    welcome: 'Bienvenido, {name}',
+    claim: 'Claim credits',
+    back: 'Retour',
+    qrTitle: 'credits'
+  },
+
   states: {
     idle: 'Repos',
     thinking: 'Réflexion',

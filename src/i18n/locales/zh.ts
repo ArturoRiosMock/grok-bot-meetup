@@ -117,6 +117,17 @@ const zh: typeof fr = {
     githubAria: '项目的 GitHub 仓库，在新标签页中打开'
   },
 
+  meetup: {
+    title: 'Grok Bot',
+    question: 'What should I build with my Grok Bots?',
+    presented: 'Presented by',
+    city: 'Meetup Mendoza',
+    welcome: '欢迎，{name}',
+    claim: 'Claim credits',
+    back: '返回',
+    qrTitle: 'credits'
+  },
+
   states: {
     idle: '静止',
     thinking: '思考',

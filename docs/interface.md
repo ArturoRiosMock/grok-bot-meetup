@@ -109,6 +109,10 @@ in `vw` alone its last character ended up off screen.
 `hashchange` that put the playhead back on the indices of the user's montage, while
 the settings view plays its own: the player stayed stuck on its entry state.
 
+`#geant` is the exception: it is a reading, so the fragment keeps `&geant` next
+to the state and `&stop`. The ball uses the settings scale (`avatar--geant`)
+and stays on that one state — no montage, no shape change.
+
 Inside the view, the same `hashchange` had a second, worse effect. `locate()` looks
 the state up with a `findIndex`, so it returns its **first** occurrence. A montage
 with the same state twice — one click in the right-hand palette is enough — could

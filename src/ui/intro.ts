@@ -53,6 +53,10 @@ export interface Arrivee {
   named: boolean
   /** l'URL demande la planche (`#planche`) */
   gallery: boolean
+  /** `#geant` : boule seule au cadrage des reglages, sans arrivee */
+  geant?: boolean
+  /** `#mendoza` : mur du meetup, sans arrivee */
+  mendoza?: boolean
   /** on revient sur une page deja ouverte : rechargement, ou precedent/suivant */
   rechargement: boolean
   /** l'utilisateur a demande moins d'animation */
@@ -66,6 +70,8 @@ export interface Arrivee {
  *   imposer une mise en scene d'accueil, c'est ne pas ouvrir ce qu'il demande.
  * - `gallery` : la planche est un outil de verification visuelle, elle doit
  *   rester le chemin sur qui ne depend de rien.
+ * - `geant` : `#etat=…&geant` demande le cadrage des reglages (boule trop
+ *   grande pour la fenetre), pas la mise en scene d'accueil.
  * - `rechargement` : c'est la demande meme — une introduction, pas une animation
  *   de chargement. On la joue donc a chaque VENUE sur le site (URL saisie, lien
  *   suivi, nouvel onglet) mais jamais quand on retombe sur une page qu'on avait
@@ -77,6 +83,6 @@ export interface Arrivee {
  *
  * `#arrivee` court-circuite le tout : c'est le lien qui sert a la revoir.
  */
-export function introDue({ named, gallery, rechargement, calme }: Arrivee): boolean {
-  return !named && !gallery && !rechargement && !calme
+export function introDue({ named, gallery, geant, mendoza, rechargement, calme }: Arrivee): boolean {
+  return !named && !gallery && !geant && !mendoza && !rechargement && !calme
 }

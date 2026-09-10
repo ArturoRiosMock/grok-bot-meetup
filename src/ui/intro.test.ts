@@ -32,6 +32,9 @@ describe('declenchement de l arrivee', () => {
     expect(introDue(arrive({ named: true }))).toBe(false)
     // `#planche` est le chemin de verification visuelle : il ne depend de rien
     expect(introDue(arrive({ gallery: true }))).toBe(false)
+    // `#geant` demande le cadrage des reglages, pas l'arrivee
+    expect(introDue(arrive({ geant: true }))).toBe(false)
+    expect(introDue(arrive({ mendoza: true }))).toBe(false)
   })
 
   it('se tait quand on demande moins d animation', () => {

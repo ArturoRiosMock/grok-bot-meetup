@@ -114,6 +114,17 @@ const en: typeof fr = {
     githubAria: 'The project repository on GitHub, in a new tab'
   },
 
+  meetup: {
+    title: 'Grok Bot',
+    question: 'What should I build with my Grok Bots?',
+    presented: 'Presented by',
+    city: 'Meetup Mendoza',
+    welcome: 'Bienvenido, {name}',
+    claim: 'Claim credits',
+    back: 'Back',
+    qrTitle: 'credits'
+  },
+
   states: {
     idle: 'Idle',
     thinking: 'Thinking',

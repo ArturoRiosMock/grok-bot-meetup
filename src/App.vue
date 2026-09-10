@@ -6,6 +6,7 @@ import BloubBot from '@/components/BloubBot.vue'
 import ExportBar from '@/components/ExportBar.vue'
 import CycleDialog from '@/components/CycleDialog.vue'
 import GifDialog from '@/components/GifDialog.vue'
+import MeetupWall from '@/components/MeetupWall.vue'
 import Settings from '@/components/Settings.vue'
 import SideRail, { type ViewId } from '@/components/SideRail.vue'
 import Timeline from '@/components/Timeline.vue'
@@ -59,8 +60,10 @@ import { POSES, SEQUENCE, STATES, type StateId } from '@/bot/states'
 
 /**
  * L'URL pilote la vue : `#etat=orbit&stop` ouvre un etat precis sequence a
- * l'arret, `#planche` affiche la planche. On relit a chaque `hashchange` pour
- * que les boutons precedent/suivant du navigateur fonctionnent vraiment.
+ * l'arret, `#planche` affiche la planche, `#geant` pose la boule au cadrage
+ * des reglages (trop grande pour la fenetre) sans le reste de l'interface.
+ * On relit a chaque `hashchange` pour que les boutons precedent/suivant du
+ * navigateur fonctionnent vraiment.
  */
 function readHash() {
   const params = new URLSearchParams(location.hash.slice(1))
@@ -72,6 +75,10 @@ function readHash() {
     named: known,
     playing: !params.has('stop'),
     gallery: params.has('planche'),
+    // `#geant` : la boule seule, a l'echelle des reglages. Sans `etat`, la
+    // comete : c'est l'etat qu'on ouvre pour ce cadrage.
+    geant: params.has('geant'),
+    mendoza: params.has('mendoza'),
     // `#arrivee` : rejouer l'arrivee sans avoir a revenir sur le site. Elle ne se
     // joue qu'a la VENUE, donc sans ce lien on ne peut pas la revoir de la seance.
     arrivee: params.has('arrivee')
@@ -116,17 +123,26 @@ calmeQuery.addEventListener('change', (e) => (calme.value = e.matches))
 const [nav] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[]
 const navigation = nav?.type ?? 'navigate'
 
+const geant = ref(initial.geant)
+const mendoza = ref(initial.mendoza)
+/** Etat nomme par l'URL, ou null si le fragment ne designe rien. */
+const askedState = ref<StateId | null>(initial.named ? initial.state : null)
+
 const intro = ref(
   // `#arrivee` demande explicitement a la voir : il court-circuite la regle de
   // declenchement, c'est tout son objet — y compris apres rechargement, sinon on
   // ne pourrait la regarder qu'une fois.
-  initial.arrivee ||
-    introDue({
-      named: initial.named,
-      gallery: initial.gallery,
-      rechargement: navigation !== 'navigate',
-      calme: calme.value
-    })
+  !initial.geant &&
+    !initial.mendoza &&
+    (initial.arrivee ||
+      introDue({
+        named: initial.named,
+        gallery: initial.gallery,
+        geant: initial.geant,
+        mendoza: initial.mendoza,
+        rechargement: navigation !== 'navigate',
+        calme: calme.value
+      }))
 )
 
 /* ------------------------------------------------------------------ cycles */
@@ -190,7 +206,11 @@ if (initial.named) {
 // l'utilisateur y a range — un eclatement ou une comete se mettraient a morpher
 // vers la boule pendant qu'elle apparait.
 const state = ref<StateId>(
-  intro.value ? 'idle' : (cycle.value.blocks[block.value]?.state ?? 'idle')
+  geant.value
+    ? (askedState.value ?? 'comet')
+    : intro.value
+      ? 'idle'
+      : (cycle.value.blocks[block.value]?.state ?? 'idle')
 )
 
 /**
@@ -230,8 +250,15 @@ const view = ref<ViewId>(initial.named ? 'animations' : 'personnaliser')
  * sort par Echap ou par le bouton, qui reste le seul element affiche.
  */
 const preview = ref(false)
+function sortirScene() {
+  preview.value = false
+  if (geant.value) {
+    geant.value = false
+    view.value = 'reglages'
+  }
+}
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') preview.value = false
+  if (e.key === 'Escape') sortirScene()
 })
 
 /**
@@ -252,7 +279,11 @@ watch(preview, (on) => {
 // Meme regle qu'au changement de vue : on ne joue pas la sequence en
 // personnalisation, sinon la forme est illisible. Le watcher ne se declenchant
 // qu'au changement, il faut l'appliquer aussi a l'initialisation.
-const playing = ref(intro.value || (initial.playing && view.value === 'animations'))
+const playing = ref(
+  geant.value
+    ? initial.playing
+    : intro.value || (initial.playing && view.value === 'animations')
+)
 
 /**
  * Le dernier fragment que NOUS avons ecrit, en attente de son `hashchange`.
@@ -272,7 +303,15 @@ let ecritParNous = ''
 
 // L'URL est partageable, donc elle suit l'etat ET la lecture. replace et pas
 // push : on ne veut pas un cran d'historique par etat.
-watch([state, playing], ([id, on]) => {
+watch([state, playing, geant], ([id, on, g]) => {
+  if (mendoza.value) return
+  // `#geant` decrit aussi une lecture : l'etat tenu et s'il tourne. Sans lui
+  // dans le fragment, quitter puis y revenir perdrait le cadrage.
+  if (g) {
+    ecritParNous = `#etat=${id}${on ? '' : '&stop'}&geant`
+    location.replace(ecritParNous)
+    return
+  }
   // L'URL decrit le LECTEUR. Hors de lui, l'etat affiche n'est qu'un decor de
   // vue — l'orbite par laquelle s'ouvrent les reglages — et n'a rien a faire
   // dans un lien partageable. L'y ecrire declenchait en plus un `hashchange`
@@ -302,6 +341,14 @@ window.addEventListener('hashchange', () => {
     return
   }
   gallery.value = next.gallery
+  askedState.value = next.named ? next.state : null
+  geant.value = next.geant
+  mendoza.value = next.mendoza
+  if (next.mendoza) return
+  if (next.geant) {
+    playing.value = next.playing
+    return
+  }
   if (next.gallery) return
   // Seul un lien qui NOMME un etat deplace la lecture. Sans ce garde, revenir
   // de la planche (`#planche` puis `#`) ramenerait au debut du montage.
@@ -360,9 +407,13 @@ const ENTREE = [makeBlock('swirl'), makeBlock('idle')]
 const ENTREE_CALME = [makeBlock('idle')]
 
 const played = computed(() => {
+  // Un seul bloc, celui de l'URL : pas de morph vers une autre forme, c'est
+  // tout l'objet de `#etat=…&stop` (et de `#geant`).
+  if (geant.value) return [makeBlock(askedState.value ?? 'comet')]
   if (intro.value) return INTRO
   if (view.value === 'animations') return cycle.value.blocks
   if (view.value !== 'reglages') return REST
+  if (askedState.value) return [makeBlock(askedState.value)]
   return calme.value ? ENTREE_CALME : ENTREE
 })
 
@@ -488,7 +539,7 @@ const NOM = 'BLOUB'
  *   fait exactement ce pour quoi il est la.
  */
 const forme = computed(() =>
-  view.value === 'reglages' || nue.value ? DEFAULT_SHAPE : shape.value
+  view.value === 'reglages' || nue.value || geant.value ? DEFAULT_SHAPE : shape.value
 )
 
 /** Duree d'une humeur. Assez longue pour qu'on la remarque sans qu'elle agite. */
@@ -742,7 +793,9 @@ watch(
 </script>
 
 <template>
-  <div v-if="gallery" class="p-5">
+  <MeetupWall v-if="mendoza" />
+
+  <div v-else-if="gallery" class="p-5">
     <a class="text-xs text-[var(--muted)] underline underline-offset-2" href="#">
       {{ t('gallery.back') }}
     </a>
@@ -769,14 +822,14 @@ watch(
          ne libere aucune place — mais effacee et surtout inerte : sans ca elle
          resterait dans l'ordre de tabulation en etant invisible. `|| undefined`
          parce qu'un `inert="false"` serait vrai pour le navigateur. -->
-    <SideRail v-if="!preview" v-model="view" class="rail" :inert="nue || undefined" />
+    <SideRail v-if="!preview && !geant" v-model="view" class="rail" :inert="nue || undefined" />
 
-    <!-- Sortie d'apercu : le seul element qui reste a l'ecran avec l'avatar. -->
+    <!-- Sortie d'apercu / cadrage geant : le seul element qui reste a l'ecran avec l'avatar. -->
     <button
       v-else
       type="button"
       class="fixed top-5 right-5 z-30 flex cursor-pointer items-center gap-1.5 rounded-lg bg-white/80 px-2.5 py-1.5 text-xs text-[var(--muted)] shadow-sm backdrop-blur transition hover:text-[var(--ink)]"
-      @click="preview = false"
+      @click="sortirScene"
     >
       {{ t('preview.exit') }}
       <kbd class="rounded bg-black/5 px-1 py-0.5 text-[10px]">{{ t('preview.key') }}</kbd>
@@ -797,14 +850,14 @@ watch(
     <div
       class="scene min-h-full items-stretch justify-center p-8 max-lg:flex max-lg:flex-col max-lg:gap-10 max-lg:px-5"
       :class="[
-        !preview && view === 'animations' && 'pb-[calc(var(--timeline)_+_1rem)]',
+        !preview && !geant && view === 'animations' && 'pb-[calc(var(--timeline)_+_1rem)]',
         // Sous 64rem le rail passe en bande HAUTE (cf. `SideRail`), et il flotte
         // comme il flottait a gauche : la scene doit lui reserver sa hauteur,
         // sinon le premier element de la pile lui passe dessous. Sauf en apercu,
         // le seul cas ou le rail est DEMONTE — y reserver sa place descendait
         // l'avatar de 80 px pour rien.
-        !preview && 'max-lg:pt-20',
-        nue || preview ? 'scene--seule' : view === 'reglages' && 'scene--gauche'
+        !preview && !geant && 'max-lg:pt-20',
+        nue || preview || geant ? 'scene--seule' : view === 'reglages' && 'scene--gauche'
       ]"
     >
       <!--
@@ -828,7 +881,7 @@ watch(
            est le seul contenu qui arrive assez a gauche pour passer dessous, donc
            c'est LUI qui s'ecarte, et pas la scene entiere. -->
       <aside
-        v-if="!preview"
+        v-if="!preview && !geant"
         class="panneau scene__gauche w-full lg:flex lg:h-[calc(100dvh_-_3rem_-_var(--timeline))] lg:w-80 lg:shrink-0 lg:flex-col lg:justify-center lg:self-start lg:-translate-y-12 lg:pl-14"
         :class="gauche ? 'panneau--ouvert max-lg:order-2' : 'max-lg:hidden'"
       >
@@ -842,7 +895,7 @@ watch(
       <main
         class="scene__avatar relative flex flex-1 items-center justify-center max-lg:order-1 max-lg:flex-col max-lg:gap-4 lg:self-start"
         :class="
-          preview
+          preview || geant
             ? 'lg:min-h-[calc(100dvh_-_4rem)]'
             : 'lg:min-h-[calc(100dvh_-_3rem_-_var(--timeline))]'
         "
@@ -857,7 +910,7 @@ watch(
               ? 'max-w-[min(560px,calc(100dvh_-_6rem))]'
               : 'max-w-[min(460px,calc(100dvh_-_var(--timeline)_-_7rem))]',
             nue && 'avatar--intro',
-            view === 'reglages' && !preview && 'avatar--geant'
+            (geant || (view === 'reglages' && !preview)) && 'avatar--geant'
           ]"
         >
           <BloubBot
@@ -872,7 +925,7 @@ watch(
             :shape="forme"
             :color="color"
             :expression="humeur ?? expression"
-            :follow="view === 'reglages'"
+            :follow="view === 'reglages' || geant"
             :gaze="intro ? INTRO_GAZE : null"
           />
         </div>
@@ -902,7 +955,7 @@ watch(
           atteignable au clavier.
         -->
         <div
-          v-if="view === 'personnaliser' && !preview"
+          v-if="view === 'personnaliser' && !preview && !geant"
           class="barre-export"
           :class="(nue || barreCachee) && 'barre-export--cachee'"
           :inert="nue || barreCachee"
@@ -919,7 +972,7 @@ watch(
           Export du MONTAGE, depuis la barre de montage : format et progression.
         -->
         <CycleDialog
-          v-if="view === 'animations' && !preview"
+          v-if="view === 'animations' && !preview && !geant"
           v-model:open="dialogueCycle"
           v-model:format="formatCycle"
           v-model:fond="fondCycle"
@@ -932,7 +985,7 @@ watch(
         <!-- Export de l'AVATAR : le GIF est le seul format a demander son fond,
              voir `exporte`. -->
         <GifDialog
-          v-if="view === 'personnaliser' && !preview"
+          v-if="view === 'personnaliser' && !preview && !geant"
           v-model:open="dialogueGif"
           v-model:fond="fondGif"
           @confirm="exporte('gif', true)"
@@ -943,7 +996,7 @@ watch(
            au changement d'onglet. w-80 est la contrainte du personnalisateur
            (grille de 4 vignettes), le panneau d'animations s'y adapte. -->
       <aside
-        v-if="!preview"
+        v-if="!preview && !geant"
         class="panneau scene__droite w-full lg:w-80 lg:shrink-0"
         :class="droite ? 'panneau--ouvert max-lg:order-2' : 'max-lg:hidden'"
       >
@@ -984,12 +1037,12 @@ watch(
       serait plus cale sur la fenetre. `aria-hidden` : purement graphique, le nom
       est deja dans le titre du document et le `h1`.
     -->
-    <p v-if="view === 'reglages' && !preview" class="wordmark" aria-hidden="true">
+    <p v-if="view === 'reglages' && !preview && !geant" class="wordmark" aria-hidden="true">
       {{ NOM }}
     </p>
 
     <Timeline
-      v-if="view === 'animations' && !preview"
+      v-if="view === 'animations' && !preview && !geant"
       v-model:cycles="cycles"
       v-model:active-id="activeId"
       v-model:block="block"
