@@ -214,7 +214,7 @@ onBeforeUnmount(() => {
             <p class="marque">
               <img src="/brand/grok-bot-wordmark.png" :alt="t('meetup.title')" />
             </p>
-            <p class="lieu">{{ t('meetup.city') }} {{ t('meetup.qrTitle') }}</p>
+            <p class="lieu">{{ claim ? t('meetup.cityClaim') : t('meetup.city') }}</p>
             <button
               ref="btnClaim"
               type="button"
@@ -393,9 +393,13 @@ onBeforeUnmount(() => {
 }
 
 .mur--claim .copie {
-  align-items: center;
-  width: var(--qr-w);
-  transform: translate(0, calc(3rem - 37vh));
+  /* Le duo reste aligne a gauche ; on le recentre comme un seul bloc sur le QR. */
+  align-items: flex-start;
+  width: var(--copie-w);
+  transform: translate(
+    calc((var(--qr-w) - var(--copie-w)) / 2),
+    calc(3rem - 37vh)
+  );
 }
 
 .qr {
@@ -427,18 +431,12 @@ onBeforeUnmount(() => {
 
 .marque {
   margin: 0;
-  display: flex;
-  justify-content: flex-start;
   width: 100%;
-}
-
-.mur--claim .marque {
-  justify-content: center;
 }
 
 .marque img {
   display: block;
-  width: min(100%, 20rem);
+  width: 100%;
   height: auto;
 }
 
@@ -450,10 +448,7 @@ onBeforeUnmount(() => {
   letter-spacing: -0.03em;
   line-height: 1.05;
   text-align: left;
-}
-
-.mur--claim .lieu {
-  text-align: center;
+  white-space: nowrap;
 }
 
 .claim {

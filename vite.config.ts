@@ -9,7 +9,7 @@ export default defineConfig({
   // le README annonce, il doit donc valoir pour un `pnpm dev` nu.
   server: {
     port: 5190,
-    // grokbot-wall : check-ins Luma / allocations. Le mur `#mendoza` lit `/wall/state`.
+    // grokbot-wall : check-ins Luma / allocations. Le mur `/mendoza` lit `/wall/state`.
     proxy: {
       '/wall': {
         target: 'http://127.0.0.1:8787',

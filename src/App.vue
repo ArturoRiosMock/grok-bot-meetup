@@ -10,7 +10,7 @@ import MeetupWall from '@/components/MeetupWall.vue'
 import Settings from '@/components/Settings.vue'
 import SideRail, { type ViewId } from '@/components/SideRail.vue'
 import Timeline from '@/components/Timeline.vue'
-import { nomDeCycle, t } from '@/i18n'
+import { nomDeCycle, pageMeetup, t } from '@/i18n'
 import {
   copie,
   copieTexte,
@@ -125,6 +125,9 @@ const navigation = nav?.type ?? 'navigate'
 
 const geant = ref(initial.geant)
 const mendoza = ref(initial.mendoza)
+watch(mendoza, (oui) => {
+  pageMeetup.value = oui
+}, { immediate: true })
 /** Etat nomme par l'URL, ou null si le fragment ne designe rien. */
 const askedState = ref<StateId | null>(initial.named ? initial.state : null)
 

@@ -13,7 +13,7 @@ pnpm install
 pnpm dev
 ```
 
-Then open http://localhost:5190.
+Then open http://localhost:5190/mendoza.
 
 ```bash
 pnpm test     # vitest
@@ -40,7 +40,7 @@ Two URLs are worth knowing:
 - `#planche`: the 14 states side by side, frozen. Quick visual check.
 - `#etat=orbit&stop`: opens one state directly, playback paused.
 - `#etat=comet&stop&geant`: the settings framing — one huge ball, that state only, no shape change.
-- `#mendoza`: meetup wall (Mendoza / SpaceXAI banner, chat bubble on check-in). Polls grokbot-wall at `/wall/state`, or press Space for a demo.
+- `/mendoza`: meetup wall (Mendoza / SpaceXAI banner, chat bubble on check-in). Polls grokbot-wall at `/wall/state`, or press Space for a demo. Other URLs redirect here.
 
 ![The 14 states, frozen side by side](docs/states.png)
 

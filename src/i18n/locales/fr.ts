@@ -21,6 +21,8 @@ export default {
      */
     name: 'bloub',
     title: 'bloub — avatar SVG animé',
+    description:
+      "bloub recrée en SVG animé l'avatar du bot de x.ai : une forme noire qui morphe entre 14 états, relevés au pixel sur la vidéo. Sans librairie d'animation.",
     botAria: 'Avatar bloub animé'
   },
 
@@ -144,10 +146,12 @@ export default {
     question: 'What should I build with my Grok Bots?',
     presented: 'Presented by',
     city: 'Meetup Mendoza',
+    cityClaim: 'Meetup Mendoza credits',
     welcome: 'Bienvenido, {name}',
     claim: 'Claim credits',
     back: 'Retour',
-    qrTitle: 'credits'
+    tabTitle: 'Grok Bot — Meetup Mendoza',
+    description: 'Meetup Grok Bot à Mendoza. Check-in et crédits Cursor.'
   },
 
   states: {

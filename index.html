@@ -2,9 +2,9 @@
 <!--
   `lang` est reecrit au demarrage par src/i18n : la valeur ici est celle du
   premier rendu, avant que la langue du visiteur soit connue. Les meta, elles,
-  restent en francais quoi qu'il arrive : les robots sociaux (X, Slack, Discord)
+  restent celles du meetup Mendoza : les robots sociaux (X, Slack, Discord)
   n'executent pas de JavaScript, donc l'apercu partage est toujours celui du
-  HTML servi. Une seule langue a choisir, autant que ce soit celle de l'auteur.
+  HTML servi. L'app ne sert que `/mendoza`.
 -->
 <html lang="fr">
   <head>
@@ -12,7 +12,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>bloub, avatar SVG animé</title>
+    <title>Grok Bot — Meetup Mendoza</title>
     <!--
       « bloub » est le nom du produit ; « l'avatar du bot de x.ai » est la
       matiere reproduite. Les deux doivent rester distincts : le projet n'est
@@ -20,7 +20,7 @@
     -->
     <meta
       name="description"
-      content="bloub recrée en SVG animé l'avatar du bot de x.ai : une forme noire qui morphe entre 14 états, relevés au pixel sur la vidéo. Sans librairie d'animation."
+      content="Grok Bot Meetup Mendoza. Check-in et crédits Cursor."
     />
 
     <!--
@@ -31,12 +31,12 @@
 
     <!-- Open Graph : attribut `property`, alors que les balises X prennent `name` -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="bloub, avatar SVG animé" />
+    <meta property="og:title" content="Grok Bot — Meetup Mendoza" />
     <meta
       property="og:description"
-      content="D'après l'avatar du bot de x.ai : une forme noire qui morphe entre 14 états, relevés au pixel sur la vidéo de référence."
+      content="Meetup Grok Bot à Mendoza. Check-in et crédits Cursor."
     />
-    <meta property="og:site_name" content="bloub" />
+    <meta property="og:site_name" content="Grok Bot" />
     <meta property="og:locale" content="fr_FR" />
     <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:locale:alternate" content="zh_CN" />
@@ -61,7 +61,7 @@
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="L'avatar noir du bot et le logotype BLOUB, sur fond clair"
+      content="Grok Bot — Meetup Mendoza"
     />
 
     <!--
@@ -78,15 +78,16 @@
       `prefers-color-scheme`, il porte la seule variante claire (corps #0a0a0c,
       yeux troues), d'ou le SVG juste apres, qui lui s'inverse.
     -->
-    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <!-- iOS aplatit la transparence en noir : celui-la est opaque, fond #f9f9f9 -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.png?v=inv" type="image/png" sizes="512x512" />
+    <link rel="icon" href="/favicon.ico?v=inv" sizes="16x16 32x32 48x48" />
+    <link rel="icon" href="/favicon.svg?v=inv" type="image/svg+xml" />
+    <!-- iOS aplatit la transparence en noir : le cercle blanc se lit dessus -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=inv" />
 
     <!-- pas de site.webmanifest : il ne sert qu'a l'installation PWA, et
          couterait trois icones de plus pour aucun gain de referencement -->
 
-    <meta name="theme-color" content="#f9f9f9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#f6f6f6" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0a0c" media="(prefers-color-scheme: dark)" />
   </head>
   <body>

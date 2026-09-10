@@ -14,6 +14,8 @@ const zh: typeof fr = {
   app: {
     name: 'bloub',
     title: 'bloub — 动画 SVG 头像',
+    description:
+      'bloub 用动画 SVG 重现 x.ai 机器人头像：黑色形体在 14 个状态间变形，数值均从参考视频逐帧测得。没有动画库。',
     botAria: 'bloub 动画头像'
   },
 
@@ -122,10 +124,12 @@ const zh: typeof fr = {
     question: 'What should I build with my Grok Bots?',
     presented: 'Presented by',
     city: 'Meetup Mendoza',
+    cityClaim: 'Meetup Mendoza credits',
     welcome: '欢迎，{name}',
     claim: 'Claim credits',
     back: '返回',
-    qrTitle: 'credits'
+    tabTitle: 'Grok Bot — Meetup Mendoza',
+    description: 'Grok Bot 门多萨 Meetup。签到并领取 Cursor 积分。'
   },
 
   states: {

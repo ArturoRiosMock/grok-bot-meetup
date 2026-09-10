@@ -9,6 +9,8 @@ const en: typeof fr = {
   app: {
     name: 'bloub',
     title: 'bloub — animated SVG avatar',
+    description:
+      'bloub recreates the x.ai bot avatar as an animated SVG: a black shape that morphs through 14 states, measured pixel by pixel from the video. No animation library.',
     botAria: 'Animated bloub avatar'
   },
 
@@ -119,10 +121,12 @@ const en: typeof fr = {
     question: 'What should I build with my Grok Bots?',
     presented: 'Presented by',
     city: 'Meetup Mendoza',
+    cityClaim: 'Meetup Mendoza credits',
     welcome: 'Bienvenido, {name}',
     claim: 'Claim credits',
     back: 'Back',
-    qrTitle: 'credits'
+    tabTitle: 'Grok Bot — Meetup Mendoza',
+    description: 'Grok Bot Meetup Mendoza. Check in and claim Cursor credits.'
   },
 
   states: {

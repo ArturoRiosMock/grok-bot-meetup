@@ -52,13 +52,29 @@ const dictionnaire = computed(() => dictionnaires[courante.value])
 const tag = computed(() => tagDe(courante.value))
 
 /**
+ * Le depot ne sert que le mur Mendoza : titre et meta sont toujours les siens.
+ * `pageMeetup` reste exporté pour d'anciens appels (App.vue).
+ */
+export const pageMeetup = ref(true)
+
+function ecrireMeta(selecteur: string, contenu: string) {
+  document.querySelector(selecteur)?.setAttribute('content', contenu)
+}
+
+/**
  * L'attribut `lang` du document suit la langue : c'est lui qui fait choisir la
  * bonne voix au lecteur d'ecran et les bonnes regles de cesure. Le titre de
- * l'onglet suit aussi — `index.html` ne peut en porter qu'un, statique.
+ * l'onglet suit aussi — `index.html` ne peut en porter qu'un, statique, que
+ * ce watch complete des que la langue est connue.
  */
 watchEffect(() => {
   document.documentElement.lang = tag.value
-  document.title = t('app.title')
+  document.title = t('meetup.tabTitle')
+  ecrireMeta('meta[name="description"]', t('meetup.description'))
+  ecrireMeta('meta[property="og:title"]', t('meetup.tabTitle'))
+  ecrireMeta('meta[property="og:description"]', t('meetup.description'))
+  ecrireMeta('meta[property="og:site_name"]', t('meetup.title'))
+  ecrireMeta('meta[property="og:image:alt"]', t('meetup.tabTitle'))
 })
 
 /** Les formateurs sont chers a construire et relus a chaque image de la piste. */
