@@ -1,32 +1,47 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import BloubBot from '@/components/BloubBot.vue'
+import ClaimQr from '@/components/ClaimQr.vue'
+import MeetupSettings from '@/components/MeetupSettings.vue'
 import { EXPRESSIONS, type ExpressionId } from '@/bot/expressions'
 import { COLORS, SHAPES, type ColorId, type ShapeId } from '@/bot/skins'
-import { t } from '@/i18n'
 import type { StateId } from '@/bot/states'
+import { langue, t } from '@/i18n'
+import { applyMeta, clampMorphSeconds, readConfig, welcome, writeConfig, type MeetupConfig } from '@/meetup/config'
 
 /**
- * Mur du meetup Mendoza : le cadrage du banner (texte a gauche, boule trop
- * grande a droite) et le meme gachette que grokbot-wall — un check-in (Luma
- * via `/wall/state`, ou Espace en demo) ouvre une bulle de chat.
+ * Meetup wall: banner on the left, oversized ball on the right. A check-in
+ * (Luma via `/wall/state`, or Space in demo) opens a chat bubble. Copy lives
+ * in this browser (`bloub:meetup`), so each ambassador configures their own event.
  */
 
 type Invite = { key: string; name: string; at: number }
 
 const DEMO = [
   'Lucía Fernández',
-  'Tomás Ruiz',
-  'Camila Soto',
-  'Mateo Álvarez',
-  'Valentina Paz',
-  'Joaquín Díaz',
+  'Aiko Tanaka',
+  'James Okonkwo',
+  'Priya Sharma',
+  'Elena Popescu',
+  'Noah Berger',
   'Sofía Herrera',
-  'Benjamín Cruz'
+  'Mateo Álvarez'
 ]
 
 const PAPER = '#f6f6f6'
-const CLAIM_URL = 'https://cursor.com/redeem/event/grok-bot-meetup-mendoza'
+const mur = ref<MeetupConfig>(readConfig())
+watch(
+  [mur, langue],
+  ([c]) => {
+    writeConfig(c)
+    applyMeta({
+      title: t('meetup.title'),
+      tabTitle: t('meetup.tabTitle'),
+      description: t('meetup.description')
+    })
+  },
+  { deep: true, immediate: true }
+)
 /**
  * Idle long : le lecteur ne reboucle pas sur swirl. La fete de check-in pose
  * `swirl` a la main (anneaux colorees, meme corps).
@@ -47,6 +62,7 @@ const shape = ref<ShapeId>('cercle')
 const color = ref<ColorId>('encre')
 const expression = ref<ExpressionId>('neutre')
 const claim = ref(false)
+const edition = ref(new URLSearchParams(location.search).has('setup'))
 const btnRetour = ref<HTMLButtonElement | null>(null)
 const btnClaim = ref<HTMLButtonElement | null>(null)
 const demoRestants = [...DEMO]
@@ -56,6 +72,12 @@ let morphTimer = 0
 let bulleTimer = 0
 let feteTimer = 0
 let enFete = false
+
+function sousTitre() {
+  if (claim.value) return t('meetup.cityClaim')
+  const ville = mur.value.place.trim()
+  return ville ? t('meetup.city', { place: ville }) : t('meetup.cityBare')
+}
 
 function prenom(nom: string) {
   const bout = nom.trim().split(/\s+/)[0] || nom
@@ -78,7 +100,13 @@ function relancerMorph() {
   clearInterval(morphTimer)
   morphTimer = window.setInterval(() => {
     if (!enFete) tirerBot()
-  }, claim.value ? 5_000 : 10_000)
+  }, clampMorphSeconds(mur.value.morphSeconds) * 1000)
+}
+
+function auClicBot() {
+  if (enFete) return
+  tirerBot()
+  relancerMorph()
 }
 
 function mouvementReduit() {
@@ -161,8 +189,16 @@ function fermerClaim() {
   void nextTick(() => btnClaim.value?.focus())
 }
 
+function fermerEdition() {
+  edition.value = false
+}
+
 function auClavier(e: KeyboardEvent) {
   if (e.key === 'Escape') {
+    if (edition.value) {
+      fermerEdition()
+      return
+    }
     fermerClaim()
     return
   }
@@ -180,6 +216,8 @@ onMounted(() => {
   relancerMorph()
   window.addEventListener('keydown', auClavier)
 })
+
+watch(() => mur.value.morphSeconds, () => relancerMorph())
 
 onBeforeUnmount(() => {
   clearInterval(syncTimer)
@@ -207,6 +245,14 @@ onBeforeUnmount(() => {
       {{ t('meetup.back') }}
     </button>
 
+    <button type="button" class="editer" :aria-expanded="edition" @click="edition = !edition">
+      {{ edition ? t('wall.done') : t('wall.edit') }}
+    </button>
+
+    <div v-if="edition" class="reglages">
+      <MeetupSettings v-model="mur" />
+    </div>
+
     <div class="haut">
       <div class="duo">
         <div class="ancre">
@@ -214,7 +260,7 @@ onBeforeUnmount(() => {
             <p class="marque">
               <img src="/brand/grok-bot-wordmark.png" :alt="t('meetup.title')" />
             </p>
-            <p class="lieu">{{ claim ? t('meetup.cityClaim') : t('meetup.city') }}</p>
+            <p class="lieu">{{ sousTitre() }}</p>
             <button
               ref="btnClaim"
               type="button"
@@ -229,7 +275,7 @@ onBeforeUnmount(() => {
         </div>
 
         <aside class="qr" :inert="!claim || undefined">
-          <img class="qr-img" src="/brand/claim-qr.svg?v=round" :alt="CLAIM_URL" />
+          <ClaimQr v-if="mur.claimUrl" :url="mur.claimUrl" />
         </aside>
 
       <div class="scene">
@@ -241,10 +287,10 @@ onBeforeUnmount(() => {
           <span v-if="bulle.phase === 'points'" class="points" aria-hidden="true">
             <i /><i /><i />
           </span>
-          <p v-else class="bulle-texte">{{ t('meetup.welcome', { name: bulle.nom }) }}</p>
+          <p v-else class="bulle-texte">{{ welcome(t('meetup.welcome'), bulle.nom) }}</p>
         </div>
 
-        <div class="avatar" :class="claim && 'avatar--geant'">
+        <div class="avatar" :class="claim && 'avatar--geant'" @click="auClicBot">
           <BloubBot
             v-model:state="state"
             v-model:block="block"
@@ -349,6 +395,37 @@ onBeforeUnmount(() => {
   color: var(--mur-ink);
 }
 
+.editer {
+  position: absolute;
+  top: 1.6rem;
+  right: 1.75rem;
+  z-index: 4;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: 'Universal Sans Text', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: #8a8a8a;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+}
+
+.editer:hover {
+  color: var(--mur-ink);
+}
+
+.reglages {
+  position: absolute;
+  top: 3.6rem;
+  right: 1.75rem;
+  z-index: 4;
+}
+
 .haut {
   --copie-w: 20rem;
   --qr-w: min(58vh, 34vw);
@@ -394,7 +471,7 @@ onBeforeUnmount(() => {
 
 .mur--claim .copie {
   /* Le duo reste aligne a gauche ; on le recentre comme un seul bloc sur le QR. */
-  align-items: flex-start;
+  align-items: center;
   width: var(--copie-w);
   transform: translate(
     calc((var(--qr-w) - var(--copie-w)) / 2),
@@ -449,6 +526,11 @@ onBeforeUnmount(() => {
   line-height: 1.05;
   text-align: left;
   white-space: nowrap;
+}
+
+.mur--claim .lieu {
+  width: 100%;
+  text-align: center;
 }
 
 .claim {
@@ -515,6 +597,7 @@ onBeforeUnmount(() => {
   width: var(--avatar-w);
   transform: translate(0, 0) scale(1);
   transition: transform var(--bascule);
+  cursor: pointer;
 }
 
 .avatar--geant {
@@ -597,6 +680,11 @@ onBeforeUnmount(() => {
 }
 
 @media (width < 64rem) {
+  .editer,
+  .reglages {
+    right: 1.2rem;
+  }
+
   .haut {
     --avatar-w: min(72vw, 22rem);
     flex-direction: column;

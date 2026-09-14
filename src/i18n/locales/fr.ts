@@ -145,13 +145,14 @@ export default {
     title: 'Grok Bot',
     question: 'What should I build with my Grok Bots?',
     presented: 'Presented by',
-    city: 'Meetup Mendoza',
-    cityClaim: 'Meetup Mendoza credits',
-    welcome: 'Bienvenido, {name}',
-    claim: 'Claim credits',
+    city: 'Meetup {place}',
+    cityBare: 'Meetup',
+    cityClaim: 'Crédits Grok Bot Meetup',
+    welcome: 'Bienvenue, {name}',
+    claim: 'Récupérer les crédits',
     back: 'Retour',
-    tabTitle: 'Grok Bot — Meetup Mendoza',
-    description: 'Meetup Grok Bot à Mendoza. Check-in et crédits Cursor.'
+    tabTitle: 'Grok Bot Meetup',
+    description: 'Meetup Grok Bot. Check-in et crédits Cursor.'
   },
 
   states: {

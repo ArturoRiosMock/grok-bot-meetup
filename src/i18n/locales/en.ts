@@ -1,11 +1,8 @@
-import type fr from './fr'
-
 /**
- * Le type `typeof fr` est le verrou : une cle oubliee ou mal orthographiee est
- * une erreur de compilation nommee, pas une chaine manquante decouverte a
- * l'ecran.
+ * Locale de reference du mur. `es.ts` est type `typeof en`, donc une cle
+ * oubliee est une erreur de compilation.
  */
-const en: typeof fr = {
+const en = {
   app: {
     name: 'bloub',
     title: 'bloub — animated SVG avatar',
@@ -120,13 +117,26 @@ const en: typeof fr = {
     title: 'Grok Bot',
     question: 'What should I build with my Grok Bots?',
     presented: 'Presented by',
-    city: 'Meetup Mendoza',
-    cityClaim: 'Meetup Mendoza credits',
-    welcome: 'Bienvenido, {name}',
+    city: 'Meetup {place}',
+    cityBare: 'Meetup',
+    cityClaim: 'Meetup credits',
+    welcome: 'Welcome, {name}',
     claim: 'Claim credits',
     back: 'Back',
-    tabTitle: 'Grok Bot — Meetup Mendoza',
-    description: 'Grok Bot Meetup Mendoza. Check in and claim Cursor credits.'
+    tabTitle: 'Grok Bot Meetup',
+    description: 'Check in and claim Cursor credits.'
+  },
+
+  wall: {
+    edit: 'Edit',
+    done: 'Done',
+    title: 'Edit wall',
+    language: 'Language',
+    place: 'City',
+    morph: 'Change every',
+    morphUnit: 's',
+    claimUrl: 'Credits QR',
+    qrEmpty: 'Add a URL to generate the QR.'
   },
 
   states: {

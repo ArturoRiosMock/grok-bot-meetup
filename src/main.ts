@@ -1,15 +1,14 @@
 import { createApp } from 'vue'
 import MeetupWall from './components/MeetupWall.vue'
-import { pageMeetup } from './i18n'
 import './styles.css'
 
 /**
- * Ce depot ne sert plus que le mur Mendoza. Toute autre URL y ramene.
+ * The wall lives at `/`. A leftover `/mendoza` bookmark is rewritten once so
+ * old links keep working; nothing else is city-specific.
  */
-const ici = location.pathname.replace(/\/$/, '') || '/'
-if (ici !== '/mendoza') {
-  history.replaceState(null, '', '/mendoza' + location.search)
+const path = location.pathname.replace(/\/$/, '') || '/'
+if (path === '/mendoza') {
+  history.replaceState(null, '', '/' + location.search + location.hash)
 }
 
-pageMeetup.value = true
 createApp(MeetupWall).mount('#app')

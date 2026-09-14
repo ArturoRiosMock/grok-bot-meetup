@@ -2,20 +2,16 @@ import { fileURLToPath, URL } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
+import { lumaWall } from './server/vite-luma'
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [vue(), tailwindcss(), lumaWall()],
   // Le port est ici et pas seulement dans `.claude/launch.json` : c'est celui que
   // le README annonce, il doit donc valoir pour un `pnpm dev` nu.
   server: {
     port: 5190,
-    // grokbot-wall : check-ins Luma / allocations. Le mur `/mendoza` lit `/wall/state`.
-    proxy: {
-      '/wall': {
-        target: 'http://127.0.0.1:8787',
-        rewrite: (path) => path.replace(/^\/wall/, '')
-      }
-    }
+    host: '127.0.0.1',
+    strictPort: true
   },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }

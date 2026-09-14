@@ -2,28 +2,26 @@ import { computed, ref, watchEffect } from 'vue'
 import { ecris, lis } from '@/ui/stockage'
 import { formePlurielle, interpoler } from './format'
 import { choisirLangue, estLangue, type Langue, tagDe } from './langues'
-import fr from './locales/fr'
 import en from './locales/en'
-import zh from './locales/zh'
+import es from './locales/es'
 
 export { LANGUES, type Langue } from './langues'
 
 /**
- * `Record<Langue, typeof fr>` et pas un objet libre : ajouter une langue a
- * `LANGUES` sans ecrire son dictionnaire devient une erreur de compilation.
+ * `Record<Langue, typeof en>` : ajouter une langue a `LANGUES` sans ecrire
+ * son dictionnaire devient une erreur de compilation.
  */
-const dictionnaires: Record<Langue, typeof fr> = { fr, en, zh }
+const dictionnaires: Record<Langue, typeof en> = { en, es }
 
 /**
- * Chemins pointes du dictionnaire. C'est ce type qui fait que `t('reglage.x')`
- * ne compile pas : la signature de `t` n'accepte rien d'autre qu'une cle qui
- * existe vraiment dans `fr.ts`.
+ * Chemins pointes du dictionnaire. `t('reglage.x')` ne compile pas : la
+ * signature de `t` n'accepte rien d'autre qu'une cle de `en.ts`.
  */
 type Chemins<T, P extends string = ''> = {
   [K in keyof T & string]: T[K] extends string ? `${P}${K}` : Chemins<T[K], `${P}${K}.`>
 }[keyof T & string]
 
-export type Cle = Chemins<typeof fr>
+export type Cle = Chemins<typeof en>
 
 const courante = ref<Langue>(
   choisirLangue(lis('langue'), navigator.languages ?? [navigator.language])
@@ -52,29 +50,17 @@ const dictionnaire = computed(() => dictionnaires[courante.value])
 const tag = computed(() => tagDe(courante.value))
 
 /**
- * Le depot ne sert que le mur Mendoza : titre et meta sont toujours les siens.
- * `pageMeetup` reste exporté pour d'anciens appels (App.vue).
+ * `pageMeetup` remains exported for App.vue. Wall title and meta are owned by
+ * `src/meetup/config.ts` so they follow the ambassador's local copy, not the UI language.
  */
 export const pageMeetup = ref(true)
 
-function ecrireMeta(selecteur: string, contenu: string) {
-  document.querySelector(selecteur)?.setAttribute('content', contenu)
-}
-
 /**
  * L'attribut `lang` du document suit la langue : c'est lui qui fait choisir la
- * bonne voix au lecteur d'ecran et les bonnes regles de cesure. Le titre de
- * l'onglet suit aussi — `index.html` ne peut en porter qu'un, statique, que
- * ce watch complete des que la langue est connue.
+ * bonne voix au lecteur d'ecran et les bonnes regles de cesure.
  */
 watchEffect(() => {
   document.documentElement.lang = tag.value
-  document.title = t('meetup.tabTitle')
-  ecrireMeta('meta[name="description"]', t('meetup.description'))
-  ecrireMeta('meta[property="og:title"]', t('meetup.tabTitle'))
-  ecrireMeta('meta[property="og:description"]', t('meetup.description'))
-  ecrireMeta('meta[property="og:site_name"]', t('meetup.title'))
-  ecrireMeta('meta[property="og:image:alt"]', t('meetup.tabTitle'))
 })
 
 /** Les formateurs sont chers a construire et relus a chaque image de la piste. */

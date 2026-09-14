@@ -123,13 +123,14 @@ const zh: typeof fr = {
     title: 'Grok Bot',
     question: 'What should I build with my Grok Bots?',
     presented: 'Presented by',
-    city: 'Meetup Mendoza',
-    cityClaim: 'Meetup Mendoza credits',
+    city: 'Meetup {place}',
+    cityBare: 'Meetup',
+    cityClaim: 'Grok Bot Meetup 积分',
     welcome: '欢迎，{name}',
-    claim: 'Claim credits',
+    claim: '领取积分',
     back: '返回',
-    tabTitle: 'Grok Bot — Meetup Mendoza',
-    description: 'Grok Bot 门多萨 Meetup。签到并领取 Cursor 积分。'
+    tabTitle: 'Grok Bot Meetup',
+    description: 'Grok Bot Meetup。签到并领取 Cursor 积分。'
   },
 
   states: {

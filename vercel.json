@@ -1,6 +1,8 @@
 {
   "rewrites": [
-    { "source": "/wall/:path*", "destination": "/wall/:path*" },
+    { "source": "/wall/state", "destination": "/api/wall/state" },
+    { "source": "/wall/health", "destination": "/api/wall/health" },
+    { "source": "/webhooks/luma", "destination": "/api/webhooks/luma" },
     { "source": "/:path*", "destination": "/index.html" }
   ]
 }
