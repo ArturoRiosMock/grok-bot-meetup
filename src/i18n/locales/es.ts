@@ -134,7 +134,9 @@ const es: typeof en = {
     morph: 'Cambiar cada',
     morphUnit: 's',
     claimUrl: 'QR de créditos',
-    qrEmpty: 'Agregá una URL para generar el QR.'
+    qrEmpty: 'Agregá una URL para generar el QR.',
+    repo: 'Ver el repositorio',
+    repoAria: 'Este proyecto en GitHub, en una pestaña nueva'
   },
 
   states: {

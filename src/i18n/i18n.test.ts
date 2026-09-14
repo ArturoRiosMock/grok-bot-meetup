@@ -81,6 +81,7 @@ describe('completude des dictionnaires', () => {
     expect(es.wall.edit).not.toBe(en.wall.edit)
     expect(es.wall.place).not.toBe(en.wall.place)
     expect(es.wall.morph).not.toBe(en.wall.morph)
+    expect(es.wall.repo).not.toBe(en.wall.repo)
     expect(es.wall.claimUrl).not.toBe(en.wall.claimUrl)
     expect(es.wall.done).not.toBe(en.wall.done)
   })

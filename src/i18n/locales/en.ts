@@ -136,7 +136,9 @@ const en = {
     morph: 'Change every',
     morphUnit: 's',
     claimUrl: 'Credits QR',
-    qrEmpty: 'Add a URL to generate the QR.'
+    qrEmpty: 'Add a URL to generate the QR.',
+    repo: 'View repository',
+    repoAria: 'This project on GitHub, in a new tab'
   },
 
   states: {
