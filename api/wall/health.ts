@@ -1,4 +1,4 @@
-import { readWallState } from '../../server/luma'
+import { readWallState } from '../../server/luma.js'
 
 type Req = { query?: Record<string, string | string[] | undefined> }
 type Res = { status: (n: number) => { json: (o: unknown) => void } }

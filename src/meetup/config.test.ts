@@ -17,8 +17,8 @@ function memory() {
 describe('meetup config', () => {
   it('only stores the venue fields', () => {
     expect(DEFAULT_CONFIG).toEqual({
-      place: 'Mendoza',
-      claimUrl: 'https://cursor.com/redeem/event/grok-bot-meetup-mendoza',
+      place: 'Florianópolis',
+      claimUrl: '',
       morphSeconds: 10
     })
     expect(defaults()).not.toBe(DEFAULT_CONFIG)
@@ -54,7 +54,7 @@ describe('meetup config', () => {
     expect(readConfig().morphSeconds).toBe(10)
   })
 
-  it('fills empty stored fields with the Mendoza base', () => {
+  it('fills empty stored fields with the Florianópolis base', () => {
     expect(parseConfig(JSON.stringify({ place: '', claimUrl: '' }))).toEqual(DEFAULT_CONFIG)
   })
 

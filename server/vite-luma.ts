@@ -1,5 +1,5 @@
 import { loadEnv, type Plugin } from 'vite'
-import { invalidateLuma, readWallState, type LumaEnv } from './luma'
+import { invalidateLuma, readWallState, type LumaEnv } from './luma.js'
 
 function json(res: { statusCode: number; setHeader: (k: string, v: string) => void; end: (s: string) => void }, body: unknown, code = 200) {
   res.statusCode = code

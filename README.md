@@ -4,6 +4,10 @@ Check-in wall for Cursor ambassadors. One URL, no city slug: open `/`, click
 **Edit**, pick English or Spanish, set the city and the credits QR. Labels are
 fixed and follow the language. The two venue fields are saved in that browser.
 
+**Current event:** Grok Bot Meetup Florianópolis — Fri 25 Sep 2026, 18:00–22:00 BRT  
+Venue: Founder Haus - Jurerê In, Florianópolis - SC  
+Luma: https://lu.ma/c293hlgc
+
 Forked from [jeremy-prt/bloub](https://github.com/jeremy-prt/bloub).
 
 ## Running it
@@ -45,10 +49,9 @@ to rehearse without a tunnel.
 
 ## Change the Vercel URL
 
-The project is still named `bloub`. To give ambassadors a cleaner host, add a
-Vercel alias (Project → Settings → Domains), for example
-`grok-bot-meetup.vercel.app`, then update the three absolute URLs in
-`index.html` (`canonical`, `og:url`, `og:image`).
+The project is deployed at `grok-bot-meetup-beta.vercel.app`. To change the
+host, add a Vercel alias (Project → Settings → Domains), then update the three
+absolute URLs in `index.html` (`canonical`, `og:url`, `og:image`).
 
 ## What's in it
 

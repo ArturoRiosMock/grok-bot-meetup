@@ -21,7 +21,7 @@ describe('claim QR', () => {
   })
 
   it('keeps the measured rounded modules and no paper fill', () => {
-    const svg = qrSvg('https://cursor.com/redeem/event/grok-bot-meetup-mendoza')
+    const svg = qrSvg('https://cursor.com/redeem/event/grok-bot-meetup-demo')
     expect(svg).toContain('rx="0.34"')
     expect(svg).toContain('fill-rule="evenodd"')
     expect(svg).toContain('rx="0.72"')

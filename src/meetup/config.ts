@@ -14,8 +14,8 @@ export type MeetupConfig = {
 export const DEFAULT_MORPH_SECONDS = 10
 
 export const DEFAULT_CONFIG: MeetupConfig = {
-  place: 'Mendoza',
-  claimUrl: 'https://cursor.com/redeem/event/grok-bot-meetup-mendoza',
+  place: 'Florianópolis',
+  claimUrl: '',
   morphSeconds: DEFAULT_MORPH_SECONDS
 }
 
