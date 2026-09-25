@@ -1,4 +1,4 @@
-import { invalidateLuma } from '../../server/luma'
+import { invalidateLuma } from '../../server/luma.js'
 
 type Res = { status: (n: number) => { json: (o: unknown) => void } }
 

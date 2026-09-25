@@ -1,4 +1,4 @@
-import { toAllocation, type Allocation, type LumaGuestRaw } from '../src/meetup/guest'
+import { toAllocation, type Allocation, type LumaGuestRaw } from '../src/meetup/guest.js'
 
 const LUMA = 'https://public-api.luma.com'
 
