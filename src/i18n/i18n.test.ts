@@ -10,26 +10,29 @@ import es from './locales/es'
 const DICTIONNAIRES = { en, es }
 
 describe('choix de la langue au demarrage', () => {
-  it('respecte le choix memorise, quelles que soient les preferences du navigateur', () => {
+  it('respecte le choix memorise sauf l ancien defaut es', () => {
     expect(choisirLangue('en', ['es-AR', 'es'])).toBe('en')
-    expect(choisirLangue('es', ['en-US'])).toBe('es')
+    expect(choisirLangue('pt', ['en-US'])).toBe('pt')
+    expect(choisirLangue('es', ['en-US'])).toBe('en')
   })
 
   it('ignore un choix memorise qui n est pas une langue connue', () => {
     expect(choisirLangue('de', ['en-GB'])).toBe('en')
     expect(choisirLangue('fr', ['es-AR'])).toBe('es')
     expect(choisirLangue('', ['en-GB'])).toBe('en')
-    expect(choisirLangue('de', ['ja-JP'])).toBe('es')
+    expect(choisirLangue('de', ['ja-JP'])).toBe('pt')
   })
 
   it('suit l ordre des preferences du navigateur, pas leur simple presence', () => {
     expect(choisirLangue(null, ['es-AR', 'en-US'])).toBe('es')
     expect(choisirLangue(null, ['en-US', 'es-AR'])).toBe('en')
+    expect(choisirLangue(null, ['pt-BR', 'en-US'])).toBe('pt')
   })
 
   it('reduit une etiquette complete a sa langue', () => {
     expect(choisirLangue(null, ['es-419'])).toBe('es')
     expect(choisirLangue(null, ['en-GB-oxendict'])).toBe('en')
+    expect(choisirLangue(null, ['pt-BR'])).toBe('pt')
   })
 
   it('saute les langues qu on ne parle pas et les etiquettes invalides', () => {
@@ -37,10 +40,10 @@ describe('choix de la langue au demarrage', () => {
     expect(choisirLangue(null, ['pas une etiquette', 'es'])).toBe('es')
   })
 
-  it('retombe sur l espagnol quand rien ne correspond', () => {
-    expect(choisirLangue(null, ['de-DE', 'ja-JP'])).toBe('es')
-    expect(choisirLangue(null, [])).toBe('es')
-    expect(choisirLangue(null, ['fr-FR'])).toBe('es')
+  it('retombe sur le portugais quand rien ne correspond', () => {
+    expect(choisirLangue(null, ['de-DE', 'ja-JP'])).toBe('pt')
+    expect(choisirLangue(null, [])).toBe('pt')
+    expect(choisirLangue(null, ['fr-FR'])).toBe('pt')
   })
 })
 
