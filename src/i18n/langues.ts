@@ -18,7 +18,9 @@ export const LANGUES = [
 
 export type Langue = (typeof LANGUES)[number]['id']
 
-export const LANGUE_PAR_DEFAUT: Langue = 'es'
+export const LANGUE_PAR_DEFAUT: Langue = 'pt'
+
+export const ANCIEN_DEFAUT: Langue = 'es'
 
 export function estLangue(valeur: string | null | undefined): valeur is Langue {
   return LANGUES.some((l) => l.id === valeur)
@@ -31,11 +33,12 @@ export function tagDe(langue: Langue): string {
 /**
  * Langue a afficher au demarrage.
  *
- * Un choix explicite gagne toujours. Sinon on parcourt les preferences du
- * navigateur DANS L'ORDRE. A defaut, l'espagnol — c'est la base du mur.
+ * Un choix explicite gagne toujours, SAUF si c'est l'ancien defaut (es) : dans
+ * ce cas on prefere pt-BR pour l'evenement de Florianopolis. Sinon on parcourt
+ * les preferences du navigateur DANS L'ORDRE. A defaut, le portugais.
  */
 export function choisirLangue(memorisee: string | null, preferences: readonly string[]): Langue {
-  if (estLangue(memorisee)) return memorisee
+  if (estLangue(memorisee) && memorisee !== ANCIEN_DEFAUT) return memorisee
   for (const tag of preferences) {
     let base: string
     try {

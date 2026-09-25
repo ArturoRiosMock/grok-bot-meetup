@@ -206,7 +206,6 @@ function reset() {
 }
 
 onMounted(() => {
-  langue.value = 'pt'
   void fetchCandidates()
 })
 
