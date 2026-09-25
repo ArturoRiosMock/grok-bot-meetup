@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import BloubBot from '@/components/BloubBot.vue'
 import type { StateId } from '@/bot/states'
 import { langue } from '@/i18n'
@@ -29,6 +29,13 @@ const shuffleNames = ref<string[]>([])
 const state = ref<StateId>('idle')
 const block = ref(0)
 const playing = ref(true)
+
+const confettiCanvas = ref<HTMLCanvasElement | null>(null)
+let confettiParticles: Array<{
+  x: number; y: number; vx: number; vy: number
+  color: string; size: number; rotation: number; rotationSpeed: number
+}> = []
+let confettiAnimationId = 0
 
 const pool = computed(() =>
   candidates.value.filter((c) => !excluded.value.has(c.name))
@@ -73,6 +80,75 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms))
 }
 
+const CONFETTI_COLORS = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#9b59b6', '#ff85a2', '#00d2d3']
+
+function launchConfetti(intensity: 'small' | 'big' = 'small') {
+  const canvas = confettiCanvas.value
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+
+  const count = intensity === 'big' ? 150 : 50
+  const centerX = canvas.width / 2
+  const startY = canvas.height * 0.3
+
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.random() - 0.5) * Math.PI
+    const speed = 8 + Math.random() * 12
+    confettiParticles.push({
+      x: centerX + (Math.random() - 0.5) * 200,
+      y: startY + (Math.random() - 0.5) * 100,
+      vx: Math.cos(angle) * speed * (intensity === 'big' ? 1.5 : 1),
+      vy: -Math.abs(Math.sin(angle) * speed) - 3,
+      color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)]!,
+      size: 6 + Math.random() * 8,
+      rotation: Math.random() * Math.PI * 2,
+      rotationSpeed: (Math.random() - 0.5) * 0.3
+    })
+  }
+
+  if (!confettiAnimationId) {
+    animateConfetti()
+  }
+}
+
+function animateConfetti() {
+  const canvas = confettiCanvas.value
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+  confettiParticles = confettiParticles.filter((p) => {
+    p.x += p.vx
+    p.y += p.vy
+    p.vy += 0.25
+    p.vx *= 0.99
+    p.rotation += p.rotationSpeed
+
+    if (p.y > canvas.height + 50) return false
+
+    ctx.save()
+    ctx.translate(p.x, p.y)
+    ctx.rotate(p.rotation)
+    ctx.fillStyle = p.color
+    ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2)
+    ctx.restore()
+
+    return true
+  })
+
+  if (confettiParticles.length > 0) {
+    confettiAnimationId = requestAnimationFrame(animateConfetti)
+  } else {
+    confettiAnimationId = 0
+  }
+}
+
 async function runDraw() {
   if (animating.value || pool.value.length === 0) return
   animating.value = true
@@ -98,9 +174,11 @@ async function runDraw() {
   for (let i = 0; i < picked.length; i++) {
     revealIndex.value = i
     winners.value = picked.slice(0, i + 1)
+    launchConfetti('small')
     await sleep(700)
   }
 
+  launchConfetti('big')
   animating.value = false
 }
 
@@ -115,6 +193,7 @@ function redrawSingle(index: number) {
     const newWinners = [...winners.value]
     newWinners[index] = replacement[0]!
     winners.value = newWinners
+    launchConfetti('small')
   }
 }
 
@@ -127,28 +206,73 @@ function reset() {
 }
 
 onMounted(() => {
+  langue.value = 'pt'
   void fetchCandidates()
 })
 
-const labels = computed(() => ({
-  title: langue.value === 'es' ? 'Sorteo' : 'Raffle',
-  subtitle: langue.value === 'es' ? 'Elige a los ganadores' : 'Pick the winners',
-  eligible: langue.value === 'es' ? 'participantes elegibles' : 'eligible participants',
-  draw: langue.value === 'es' ? 'Sortear' : 'Draw',
-  drawAgain: langue.value === 'es' ? 'Sortear de nuevo' : 'Draw again',
-  redraw: langue.value === 'es' ? 'Re-sortear' : 'Redraw',
-  reset: langue.value === 'es' ? 'Reiniciar' : 'Reset',
-  winners: langue.value === 'es' ? 'Ganadores' : 'Winners',
-  loading: langue.value === 'es' ? 'Cargando...' : 'Loading...',
-  error: langue.value === 'es' ? 'Error al cargar' : 'Error loading',
-  demo: langue.value === 'es' ? '(modo demo)' : '(demo mode)',
-  noParticipants: langue.value === 'es' ? 'Sin participantes registrados' : 'No participants checked in',
-  howMany: langue.value === 'es' ? 'Ganadores:' : 'Winners:'
-}))
+onUnmounted(() => {
+  if (confettiAnimationId) {
+    cancelAnimationFrame(confettiAnimationId)
+  }
+})
+
+const labels = computed(() => {
+  const lang = langue.value
+  if (lang === 'pt') {
+    return {
+      title: 'Sorteio',
+      subtitle: 'Escolha os ganhadores',
+      eligible: 'participantes elegíveis',
+      draw: 'Sortear',
+      drawAgain: 'Sortear novamente',
+      redraw: 'Re-sortear',
+      reset: 'Reiniciar',
+      winners: 'Ganhadores',
+      loading: 'Carregando...',
+      error: 'Erro ao carregar',
+      demo: '(modo demo)',
+      noParticipants: 'Nenhum participante registrado',
+      howMany: 'Ganhadores:'
+    }
+  }
+  if (lang === 'es') {
+    return {
+      title: 'Sorteo',
+      subtitle: 'Elige a los ganadores',
+      eligible: 'participantes elegibles',
+      draw: 'Sortear',
+      drawAgain: 'Sortear de nuevo',
+      redraw: 'Re-sortear',
+      reset: 'Reiniciar',
+      winners: 'Ganadores',
+      loading: 'Cargando...',
+      error: 'Error al cargar',
+      demo: '(modo demo)',
+      noParticipants: 'Sin participantes registrados',
+      howMany: 'Ganadores:'
+    }
+  }
+  return {
+    title: 'Raffle',
+    subtitle: 'Pick the winners',
+    eligible: 'eligible participants',
+    draw: 'Draw',
+    drawAgain: 'Draw again',
+    redraw: 'Redraw',
+    reset: 'Reset',
+    winners: 'Winners',
+    loading: 'Loading...',
+    error: 'Error loading',
+    demo: '(demo mode)',
+    noParticipants: 'No participants checked in',
+    howMany: 'Winners:'
+  }
+})
 </script>
 
 <template>
   <div class="rifa">
+    <canvas ref="confettiCanvas" class="confetti-canvas" />
     <header class="encabezado">
       <h1 class="titulo">{{ labels.title }}</h1>
       <p v-if="eventName" class="evento">{{ eventName }}</p>
@@ -265,6 +389,16 @@ const labels = computed(() => ({
   font-weight: 400;
   font-style: normal;
   font-display: swap;
+}
+
+.confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
 }
 
 .rifa {

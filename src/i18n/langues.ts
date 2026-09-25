@@ -12,7 +12,8 @@
  */
 export const LANGUES = [
   { id: 'en', tag: 'en', emoji: '🇬🇧', nom: 'English' },
-  { id: 'es', tag: 'es', emoji: '🇪🇸', nom: 'Español' }
+  { id: 'es', tag: 'es', emoji: '🇪🇸', nom: 'Español' },
+  { id: 'pt', tag: 'pt-BR', emoji: '🇧🇷', nom: 'Português' }
 ] as const
 
 export type Langue = (typeof LANGUES)[number]['id']

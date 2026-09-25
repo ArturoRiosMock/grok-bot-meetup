@@ -131,8 +131,8 @@ describe('pluriel', () => {
 })
 
 describe('catalogue des langues', () => {
-  it('propose anglais et espagnol, avec un drapeau et un endonyme', () => {
-    expect(LANGUES.map((l) => l.id)).toEqual(['en', 'es'])
+  it('propose anglais, espagnol et portugais, avec un drapeau et un endonyme', () => {
+    expect(LANGUES.map((l) => l.id)).toEqual(['en', 'es', 'pt'])
     for (const l of LANGUES) {
       expect(l.emoji.length, l.id).toBeGreaterThan(0)
       expect(l.nom.trim(), l.id).not.toBe('')

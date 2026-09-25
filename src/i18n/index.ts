@@ -4,6 +4,7 @@ import { formePlurielle, interpoler } from './format'
 import { choisirLangue, estLangue, type Langue, tagDe } from './langues'
 import en from './locales/en'
 import es from './locales/es'
+import pt from './locales/pt'
 
 export { LANGUES, type Langue } from './langues'
 
@@ -11,7 +12,7 @@ export { LANGUES, type Langue } from './langues'
  * `Record<Langue, typeof en>` : ajouter une langue a `LANGUES` sans ecrire
  * son dictionnaire devient une erreur de compilation.
  */
-const dictionnaires: Record<Langue, typeof en> = { en, es }
+const dictionnaires: Record<Langue, typeof en> = { en, es, pt }
 
 /**
  * Chemins pointes du dictionnaire. `t('reglage.x')` ne compile pas : la
